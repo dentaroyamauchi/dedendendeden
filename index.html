@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>運指ノート</title>
+<style>
+  :root{
+    --paper:#FFFFFF;
+    --paper-card:#FFFFFF;
+    --ink:#0A0A0A;
+    --ink-soft:#3A3A3A;
+    --ink-faint:#8A8A8A;
+    --line:#D6D6D8;
+    --brass:#54585D;
+    --brass-deep:#0A0A0A;
+    --brass-light:#EFEFF0;
+    --wine:#C8102E;
+    --wine-light:#FBE3E7;
+    --shadow: 0 1px 2px rgba(0,0,0,0.08), 0 6px 20px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  a{color:var(--brass-deep);}
+  button{font-family:inherit;}
+  button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible{
+    outline:2px solid var(--brass);
+    outline-offset:2px;
+  }
+
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:20px 18px 96px;
+  }
+
+  /* ---------- Header ---------- */
+  header.app-head{
+    padding-top:6px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .brand .note{
+    font-size:1.3rem;
+    color:var(--brass-deep);
+  }
+  .brand h1{
+    font-family:inherit;
+    font-weight:900;
+    font-size:1.55rem;
+    letter-spacing:.04em;
+    margin:0;
+  }
+  .brand-sub{
+    margin:2px 0 0;
+    font-size:.8rem;
+    color:var(--ink-faint);
+    letter-spacing:.04em;
+  }
+
+  .staff{
+    height:20px;
+    margin:14px 0 18px;
+    background-image:
+      repeating-linear-gradient(
+        var(--line), var(--line) 1px, transparent 1px, transparent 5px
+      );
+    background-size: 100% 20px;
+    background-repeat:no-repeat;
+    border-bottom:2.5px solid var(--ink);
+    opacity:1;
+  }
+  .staff.thin{ height:12px; margin:10px 0; background-size:100% 12px; border-bottom-width:1.5px; opacity:.85;}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .search-box{
+    flex:1;
+    position:relative;
+  }
+  .search-box input{
+    width:100%;
+    padding:11px 14px 11px 38px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--paper-card);
+    color:var(--ink);
+    font-size:.92rem;
+  }
+  .search-box input::placeholder{ color:var(--ink-faint); }
+  .search-box svg{
+    position:absolute;
+    left:12px; top:50%; transform:translateY(-50%);
+    width:16px; height:16px;
+    stroke:var(--ink-faint);
+  }
+  .btn-add{
+    display:flex; align-items:center; gap:6px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    border-radius:8px;
+    padding:0 16px;
+    font-size:.88rem;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .btn-add:hover{ background:var(--brass-deep); }
+  .btn-add svg{ width:15px; height:15px; stroke:currentColor; }
+
+  .btn-icon{
+    display:flex; align-items:center; justify-content:center;
+    flex:none;
+    width:42px; height:42px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .btn-icon:hover{ background:var(--brass-light); border-color:var(--brass); }
+  .btn-icon svg{ width:18px; height:18px; stroke:var(--ink-soft); }
+
+  /* ---------- Share modal ---------- */
+  .share-actions{ display:flex; flex-direction:column; gap:8px; margin:14px 0 4px; }
+  .share-opt{
+    display:flex; align-items:center; gap:12px;
+    width:100%;
+    text-align:left;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .share-opt:hover{ background:var(--brass-light); border-color:var(--brass); }
+  .share-opt svg{ width:19px; height:19px; stroke:var(--brass-deep); flex:none; }
+  .share-opt-text{ display:flex; flex-direction:column; gap:2px; }
+  .share-opt-text strong{ font-size:.88rem; color:var(--ink); }
+  .share-opt-text small{ font-size:.74rem; color:var(--ink-faint); line-height:1.4; }
+
+  .count-line{
+    font-size:.78rem;
+    color:var(--ink-faint);
+    margin:0 0 10px 2px;
+    letter-spacing:.03em;
+  }
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    margin-bottom:14px;
+    padding-bottom:2px;
+  }
+  .tabs::-webkit-scrollbar{ display:none; }
+  .tab-btn{
+    flex:none;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:#fff;
+    border:1.5px solid var(--line);
+    color:var(--ink-soft);
+    border-radius:20px;
+    padding:7px 14px;
+    font-size:.8rem;
+    font-weight:700;
+    font-family:inherit;
+    letter-spacing:.02em;
+    white-space:nowrap;
+    cursor:pointer;
+  }
+  .tab-btn .tab-count{
+    font-family:inherit;
+    font-size:.72rem;
+    font-weight:600;
+    color:var(--ink-faint);
+  }
+  .tab-btn.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fff;
+  }
+  .tab-btn.active .tab-count{ color:#fff; opacity:.75; }
+  .tab-btn:hover:not(.active){ border-color:var(--ink); }
+
+  .cat-chip{
+    display:inline-block;
+    font-size:.66rem;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:#fff;
+    background:var(--ink);
+    padding:2px 8px;
+    border-radius:4px;
+    white-space:nowrap;
+  }
+
+  /* ---------- List ---------- */
+  #list{ display:flex; flex-direction:column; gap:10px; }
+
+  .card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-left:3px solid transparent;
+    border-radius:8px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    transition:border-color .15s ease;
+  }
+  .card.open{ border-left-color:var(--ink); }
+  .card-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:13px 14px;
+    cursor:pointer;
+  }
+  .card-head:hover{ background:var(--brass-light); }
+  .chev{
+    width:16px; height:16px; flex:none;
+    stroke:var(--ink-faint);
+    transition:transform .15s ease;
+  }
+  .card.open .chev{ transform:rotate(90deg); }
+
+  .card-title-wrap{ flex:1; min-width:0; }
+  .card-title{
+    font-family:inherit;
+    font-weight:700;
+    font-size:.92rem;
+    margin:0 0 3px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .card-meta{
+    display:flex; gap:8px; align-items:center;
+    font-size:.7rem;
+    color:var(--ink-faint);
+  }
+  .finger-chip{
+    display:inline-block;
+    font-family:inherit;
+    font-size:.68rem;
+    letter-spacing:.03em;
+    background:var(--brass-light);
+    color:var(--brass-deep);
+    padding:2px 7px;
+    border-radius:5px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    max-width:180px;
+  }
+  .link-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--brass);
+    flex:none;
+  }
+
+  .card-body{
+    display:none;
+    padding:0 16px 16px;
+    border-top:1px dashed var(--line);
+  }
+  .card.open .card-body{ display:block; }
+
+  .sec{ margin-top:14px; }
+  .sec-label{
+    font-size:.72rem;
+    font-weight:600;
+    letter-spacing:.08em;
+    color:var(--brass-deep);
+    display:flex; align-items:center; gap:6px;
+    margin-bottom:6px;
+  }
+  .sec-label svg{ width:13px; height:13px; stroke:var(--brass-deep); }
+  .lyrics-box{
+    white-space:pre-wrap;
+    line-height:1.9;
+    font-size:.92rem;
+    color:var(--ink);
+    background:transparent;
+  }
+  .fingering-box{
+    white-space:pre-wrap;
+    font-family:inherit;
+    font-size:.86rem;
+    letter-spacing:.03em;
+    line-height:1.8;
+    color:var(--brass-deep);
+    background:var(--brass-light);
+    border-radius:8px;
+    padding:10px 12px;
+  }
+  .fingering-box.harmony{
+    color:var(--wine);
+    background:var(--wine-light);
+  }
+  .muted-note{ color:var(--ink-faint); font-size:.85rem; }
+  .sheet-link{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:.88rem;
+    font-weight:600;
+    color:var(--brass-deep);
+    text-decoration:none;
+    border-bottom:1px solid var(--brass);
+    padding-bottom:1px;
+  }
+  .sheet-link svg{ width:14px; height:14px; stroke:currentColor; }
+
+  .card-actions{
+    display:flex; gap:8px;
+    margin-top:16px;
+    padding-top:12px;
+    border-top:1px solid var(--line);
+  }
+  .icon-btn{
+    display:flex; align-items:center; gap:5px;
+    background:none;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:7px 12px;
+    font-size:.8rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .icon-btn svg{ width:14px; height:14px; stroke:currentColor; }
+  .icon-btn:hover{ background:var(--brass-light); color:var(--brass-deep); border-color:var(--brass); }
+  .icon-btn.danger:hover{ background:var(--wine-light); color:var(--wine); border-color:var(--wine); }
+
+  /* ---------- Empty state ---------- */
+  .empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--ink-faint);
+  }
+  .empty .note{ font-size:1.6rem; color:var(--line); }
+  .empty p{ font-size:.9rem; margin:10px 0 18px; }
+  .empty .btn-add{ margin:0 auto; padding:10px 18px; }
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(34,38,43,0.45);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+  }
+  .overlay.show{ display:flex; }
+  @media (min-width:640px){
+    .overlay{ align-items:center; }
+  }
+
+  .modal{
+    background:var(--paper-card);
+    width:100%;
+    max-width:560px;
+    max-height:88vh;
+    overflow-y:auto;
+    border-radius:16px 16px 0 0;
+    padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+  }
+  @media (min-width:640px){
+    .modal{ border-radius:14px; padding:24px; }
+  }
+  .modal h2{
+    font-family:inherit;
+    font-size:1.2rem;
+    margin:0 0 4px;
+  }
+  .modal .modal-sub{
+    font-size:.78rem; color:var(--ink-faint); margin:0 0 14px;
+  }
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block;
+    font-size:.78rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+    letter-spacing:.02em;
+  }
+  .field .opt{ font-weight:400; color:var(--ink-faint); }
+  .field input, .field textarea, .field select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:.9rem;
+    font-family:inherit;
+    background:#fff;
+    color:var(--ink);
+    resize:vertical;
+  }
+  .field textarea{ min-height:90px; line-height:1.7; }
+  .field textarea.mono{ font-family:inherit; font-size:.85rem; min-height:70px; }
+  .field .err{ font-size:.75rem; color:var(--wine); margin-top:4px; display:none; }
+  .field.invalid input{ border-color:var(--wine); }
+  .field.invalid .err{ display:block; }
+
+  .modal-actions{
+    display:flex; gap:10px; margin-top:18px;
+  }
+  .btn-primary, .btn-ghost, .btn-danger-solid{
+    flex:1;
+    border:none;
+    border-radius:8px;
+    padding:12px;
+    font-size:.9rem;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .btn-primary{ background:var(--ink); color:var(--paper); }
+  .btn-primary:hover{ background:var(--brass-deep); }
+  .btn-ghost{ background:transparent; color:var(--ink-soft); border:1px solid var(--line); }
+  .btn-ghost:hover{ background:rgba(0,0,0,0.03); }
+  .btn-danger-solid{ background:var(--wine); color:#fff; }
+  .btn-danger-solid:hover{ background:#5f232c; }
+
+  .confirm-body{ font-size:.9rem; color:var(--ink-soft); line-height:1.7; margin-bottom:4px; }
+  .confirm-title{ font-weight:700; color:var(--ink); }
+
+  /* ---------- Toast ---------- */
+  #toast{
+    position:fixed;
+    bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink);
+    color:var(--paper);
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:.83rem;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:100;
+    max-width:90%;
+    text-align:center;
+  }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .loading{
+    text-align:center;
+    padding:60px 0;
+    color:var(--ink-faint);
+    font-size:.85rem;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+
+  /* ---------- Password gate ---------- */
+  #passGate{
+    position:fixed; inset:0;
+    background:var(--paper);
+    z-index:200;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  #passGate.hide{ display:none; }
+  .gate-box{
+    width:100%;
+    max-width:340px;
+    text-align:center;
+  }
+  .gate-box .note{ font-size:1.8rem; color:var(--brass-deep); margin-bottom:6px; }
+  .gate-box h1{
+    font-family:inherit;
+    font-size:1.15rem;
+    margin:0 0 4px;
+  }
+  .gate-box p{
+    font-size:.8rem;
+    color:var(--ink-faint);
+    margin:0 0 18px;
+  }
+  .gate-box input{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:.95rem;
+    text-align:center;
+    letter-spacing:.05em;
+    margin-bottom:10px;
+  }
+  .gate-box button{
+    width:100%;
+    border:none;
+    border-radius:8px;
+    padding:12px;
+    background:var(--ink);
+    color:var(--paper);
+    font-size:.9rem;
+    font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .gate-box button:hover{ background:var(--brass-deep); }
+  .gate-err{
+    font-size:.78rem;
+    color:var(--wine);
+    margin-top:10px;
+    min-height:1em;
+  }
+  @keyframes gateShake{
+    10%,90%{ transform:translateX(-1px); }
+    20%,80%{ transform:translateX(2px); }
+    30%,50%,70%{ transform:translateX(-4px); }
+    40%,60%{ transform:translateX(4px); }
+  }
+  .gate-box.shake{ animation:gateShake .4s; }
+</style>
+</head>
+<body>
+
+<div id="passGate">
+  <div class="gate-box" id="gateBox">
+    <div class="note">♪</div>
+    <h1>運指ノート</h1>
+    <p>合言葉を入力してください</p>
+    <form id="gateForm" autocomplete="off">
+      <input type="password" id="gatePassInput" placeholder="合言葉" autocomplete="off">
+      <button type="submit">開く</button>
+      <p class="gate-err" id="gateErr"></p>
+    </form>
+  </div>
+</div>
+
+<div class="wrap" id="appRoot" style="display:none;">
+  <header class="app-head">
+    <div class="brand">
+      <span class="note">♪</span>
+      <h1>運指ノート</h1>
+    </div>
+    <p class="brand-sub">曲名・歌詞・指番号・楽譜リンクをまとめて管理</p>
+    <div class="staff"></div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="曲名・ふりがなで検索" autocomplete="off">
+    </div>
+    <button class="btn-add" id="openAddBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      新規登録
+    </button>
+    <button class="btn-icon" id="shareMenuBtn" title="共有・書き出し" aria-label="共有・書き出し">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    </button>
+  </div>
+
+  <div class="tabs" id="tabsBar"></div>
+
+  <p class="count-line" id="countLine"></p>
+
+  <div id="list"></div>
+</div>
+
+<div id="toast"></div>
+
+<!-- 追加/編集モーダル -->
+<div class="overlay" id="formOverlay">
+  <div class="modal">
+    <h2 id="formTitle">曲を登録</h2>
+    <p class="modal-sub">入力した内容はこの端末に保存されます</p>
+    <form id="songForm" novalidate>
+      <input type="hidden" id="songId">
+      <div class="field" id="titleField">
+        <label for="titleInput">曲名<span class="opt">（必須）</span></label>
+        <input id="titleInput" type="text" placeholder="例）練習曲第一番" maxlength="80">
+        <p class="err">曲名を入力してください</p>
+      </div>
+      <div class="field">
+        <label for="furiganaInput">ふりがな<span class="opt">（任意・検索用／一覧には表示されません）</span></label>
+        <input id="furiganaInput" type="text" placeholder="例）れんしゅうきょくだいいちばん" maxlength="120">
+      </div>
+      <div class="field">
+        <label for="categoryInput">カテゴリ<span class="opt">（必須）</span></label>
+        <select id="categoryInput"></select>
+      </div>
+      <div class="field">
+        <label for="lyricsInput">歌詞<span class="opt">（任意）</span></label>
+        <textarea id="lyricsInput" placeholder="歌詞を貼り付け・入力"></textarea>
+      </div>
+      <div class="field">
+        <label for="fingeringInput">指番号<span class="opt">(任意)</span></label>
+        <textarea class="mono" id="fingeringInput" placeholder="例)1-2-3-1-2-3-4-5&#10;歌詞の行に合わせて入力すると見やすくなります"></textarea>
+      </div>
+      <div class="field">
+        <label for="fingeringHarmonyInput">ハモリ指番号<span class="opt">(任意)</span></label>
+        <textarea class="mono" id="fingeringHarmonyInput" placeholder="例)ハモリパートの指番号"></textarea>
+      </div>
+      <div class="field" id="urlField">
+        <label for="urlInput">楽譜へのリンク<span class="opt">（任意）</span></label>
+        <input id="urlInput" type="url" placeholder="https://...">
+        <p class="err">URLの形式で入力してください</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="cancelFormBtn">キャンセル</button>
+        <button type="submit" class="btn-primary">保存する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 削除確認モーダル -->
+<div class="overlay" id="deleteOverlay">
+  <div class="modal">
+    <h2>削除の確認</h2>
+    <p class="confirm-body">「<span class="confirm-title" id="deleteTargetName"></span>」を削除します。<br>この操作は取り消せません。</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="cancelDeleteBtn">キャンセル</button>
+      <button type="button" class="btn-danger-solid" id="confirmDeleteBtn">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 共有・書き出しモーダル -->
+<div class="overlay" id="shareOverlay">
+  <div class="modal">
+    <h2>共有・書き出し</h2>
+    <p class="modal-sub">登録した曲データを、ほかの端末や人と共有できます</p>
+
+    <div class="share-actions">
+      <button type="button" class="share-opt" id="exportFileBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span class="share-opt-text"><strong>ファイルを書き出す</strong><small>JSONファイルとして保存。LINEやメール、AirDropなどで送れます</small></span>
+      </button>
+      <button type="button" class="share-opt" id="importFileBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="share-opt-text"><strong>ファイルを読み込む</strong><small>受け取ったJSONファイルからこの端末に取り込みます</small></span>
+      </button>
+      <button type="button" class="share-opt" id="copyUrlBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span class="share-opt-text"><strong>共有用URLをコピー</strong><small>このアプリをネット上に公開している場合のみ、開くだけで取り込めるリンクを作れます</small></span>
+      </button>
+    </div>
+    <input type="file" id="importFileInput" accept="application/json,.json" style="display:none">
+
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="closeShareBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 読み込み確認モーダル -->
+<div class="overlay" id="importConfirmOverlay">
+  <div class="modal">
+    <h2>読み込みの確認</h2>
+    <p class="confirm-body" id="importConfirmBody"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="cancelImportBtn">キャンセル</button>
+      <button type="button" class="btn-primary" id="confirmImportMergeBtn">今のデータに追加する</button>
+    </div>
+    <div class="modal-actions" style="margin-top:2px;">
+      <button type="button" class="btn-danger-solid" id="confirmImportReplaceBtn">今のデータを置き換える</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'songs-data';
+  const CATEGORIES = ['選手応援歌', 'ヒットテーマ', 'チャンステーマ', 'チーム応援歌'];
+  const DEFAULT_CATEGORY = CATEGORIES[0];
+  let songs = [];
+  let openId = null;
+  let editingId = null;
+  let deleteTargetId = null;
+  let loaded = false;
+  let activeTab = '全て';
+
+  const listEl = document.getElementById('list');
+  const countLine = document.getElementById('countLine');
+  const searchInput = document.getElementById('searchInput');
+  const tabsBar = document.getElementById('tabsBar');
+
+  const escapeHtml = (s='') => s.replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+
+  function genId(){
+    return crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  }
+
+  function toBase64Unicode(str){
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+  function fromBase64Unicode(str){
+    return decodeURIComponent(escape(atob(str)));
+  }
+
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=> t.classList.remove('show'), 2200);
+  }
+
+  const hasCloudStorage = (typeof window !== 'undefined') && window.storage && typeof window.storage.get === 'function';
+
+  async function storageGet(key){
+    if(hasCloudStorage){
+      try{
+        const res = await window.storage.get(key, false);
+        return res ? res.value : null;
+      }catch(e){
+        return null;
+      }
+    }
+    try{
+      return localStorage.getItem(key);
+    }catch(e){
+      return null;
+    }
+  }
+
+  async function storageSet(key, value){
+    if(hasCloudStorage){
+      try{
+        const res = await window.storage.set(key, value, false);
+        return !!res;
+      }catch(e){
+        return false;
+      }
+    }
+    try{
+      localStorage.setItem(key, value);
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  async function loadSongs(){
+    try{
+      const value = await storageGet(STORAGE_KEY);
+      songs = value ? JSON.parse(value) : [];
+      songs.forEach(s => { if(!s.category) s.category = DEFAULT_CATEGORY; });
+    }catch(e){
+      songs = [];
+    }
+    loaded = true;
+    render();
+  }
+
+  async function persist(){
+    const ok = await storageSet(STORAGE_KEY, JSON.stringify(songs));
+    if(!ok){ toast('保存に失敗しました。もう一度お試しください'); }
+  }
+
+  function renderTabs(){
+    const tabs = ['全て', ...CATEGORIES];
+    tabsBar.innerHTML = tabs.map(t => {
+      const count = t === '全て' ? songs.length : songs.filter(s => s.category === t).length;
+      return `<button type="button" class="tab-btn ${t===activeTab?'active':''}" data-tab="${escapeHtml(t)}">
+        ${escapeHtml(t)} <span class="tab-count">${count}</span>
+      </button>`;
+    }).join('');
+    tabsBar.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', ()=>{
+        activeTab = btn.dataset.tab;
+        openId = null;
+        render();
+      });
+    });
+  }
+
+  function sortedFiltered(){
+    const q = searchInput.value.trim().toLowerCase();
+    let arr = [...songs];
+    if(activeTab !== '全て'){
+      arr = arr.filter(s => s.category === activeTab);
+    }
+    if(q){
+      arr = arr.filter(s =>
+        s.title.toLowerCase().includes(q) ||
+        (s.furigana && s.furigana.toLowerCase().includes(q))
+      );
+    }
+    arr.sort((a,b)=> a.title.localeCompare(b.title, 'ja'));
+    return arr;
+  }
+
+  function render(){
+    renderTabs();
+    if(!loaded){
+      listEl.innerHTML = '<div class="loading">読み込み中…</div>';
+      countLine.textContent = '';
+      return;
+    }
+    const arr = sortedFiltered();
+    const q = searchInput.value.trim();
+
+    if(songs.length === 0){
+      listEl.innerHTML = `
+        <div class="empty">
+          <div class="note">♪</div>
+          <p>まだ曲が登録されていません。<br>最初の一曲を登録してみましょう。</p>
+          <button class="btn-add" id="emptyAddBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            曲を登録する
+          </button>
+        </div>`;
+      countLine.textContent = '';
+      document.getElementById('emptyAddBtn').addEventListener('click', openAddForm);
+      return;
+    }
+
+    if(arr.length === 0){
+      listEl.innerHTML = `
+        <div class="empty">
+          <div class="note">♪</div>
+          <p>${q ? `「${escapeHtml(q)}」に一致する曲が見つかりません。` : `「${escapeHtml(activeTab)}」に登録された曲がありません。`}</p>
+        </div>`;
+      countLine.textContent = `全 ${songs.length} 曲`;
+      return;
+    }
+
+    countLine.textContent = q ? `${arr.length} 件ヒット（全 ${songs.length} 曲）` : `${arr.length} 曲`;
+
+    listEl.innerHTML = arr.map(s => cardHtml(s)).join('');
+
+    arr.forEach(s => {
+      const head = document.getElementById('head-'+s.id);
+      head.addEventListener('click', () => toggleOpen(s.id));
+      const editBtn = document.getElementById('edit-'+s.id);
+      if(editBtn) editBtn.addEventListener('click', (e)=>{ e.stopPropagation(); openEditForm(s.id); });
+      const delBtn = document.getElementById('del-'+s.id);
+      if(delBtn) delBtn.addEventListener('click', (e)=>{ e.stopPropagation(); openDeleteConfirm(s.id); });
+    });
+  }
+
+  function cardHtml(s){
+    const isOpen = s.id === openId;
+    const fingeringPreview = s.fingering ? s.fingering.split('\n')[0] : '';
+    return `
+    <div class="card ${isOpen?'open':''}" id="card-${s.id}">
+      <div class="card-head" id="head-${s.id}" role="button" tabindex="0" aria-expanded="${isOpen}">
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+        <div class="card-title-wrap">
+          <p class="card-title">${escapeHtml(s.title)}</p>
+          <div class="card-meta">
+            <span class="cat-chip">${escapeHtml(s.category || DEFAULT_CATEGORY)}</span>
+            ${fingeringPreview ? `<span class="finger-chip">${escapeHtml(fingeringPreview)}</span>` : ''}
+            ${s.sheetUrl ? `<span class="link-dot" title="楽譜リンクあり"></span>` : ''}
+          </div>
+        </div>
+      </div>
+      ${isOpen ? cardBody(s) : ''}
+    </div>`;
+  }
+
+  function cardBody(s){
+    return `
+      <div class="card-body">
+        <div class="sec">
+          <p class="sec-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg>
+            歌詞
+          </p>
+          ${s.lyrics ? `<div class="lyrics-box">${escapeHtml(s.lyrics)}</div>` : `<p class="muted-note">歌詞は未登録です</p>`}
+        </div>
+        <div class="sec">
+          <p class="sec-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l12-2v13M9 9l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            指番号
+          </p>
+          ${s.fingering ? `<div class="fingering-box">${escapeHtml(s.fingering)}</div>` : `<p class="muted-note">指番号は未登録です</p>`}
+        </div>
+        <div class="sec">
+          <p class="sec-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l12-2v13M9 9l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            ハモリ指番号
+          </p>
+          ${s.fingeringHarmony ? `<div class="fingering-box harmony">${escapeHtml(s.fingeringHarmony)}</div>` : `<p class="muted-note">ハモリ指番号は未登録です</p>`}
+        </div>
+        <div class="sec">
+          <p class="sec-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l12-2v13M9 9l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            楽譜
+          </p>
+          ${s.sheetUrl
+            ? `<a class="sheet-link" href="${escapeHtml(s.sheetUrl)}" target="_blank" rel="noopener noreferrer">
+                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                 楽譜を見る
+               </a>`
+            : `<p class="muted-note">楽譜リンクは未登録です</p>`}
+        </div>
+        <div class="card-actions">
+          <button type="button" class="icon-btn" id="edit-${s.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            編集
+          </button>
+          <button type="button" class="icon-btn danger" id="del-${s.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            削除
+          </button>
+        </div>
+      </div>`;
+  }
+
+  function toggleOpen(id){
+    openId = (openId === id) ? null : id;
+    render();
+  }
+
+  searchInput.addEventListener('input', ()=>{ render(); });
+
+  /* ---------- Form modal ---------- */
+  const formOverlay = document.getElementById('formOverlay');
+  const songForm = document.getElementById('songForm');
+  const titleInput = document.getElementById('titleInput');
+  const furiganaInput = document.getElementById('furiganaInput');
+  const categoryInput = document.getElementById('categoryInput');
+  const lyricsInput = document.getElementById('lyricsInput');
+  const fingeringInput = document.getElementById('fingeringInput');
+  const fingeringHarmonyInput = document.getElementById('fingeringHarmonyInput');
+  const urlInput = document.getElementById('urlInput');
+  const titleField = document.getElementById('titleField');
+  const urlField = document.getElementById('urlField');
+  const formTitle = document.getElementById('formTitle');
+
+  categoryInput.innerHTML = CATEGORIES.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+
+  function openAddForm(){
+    editingId = null;
+    formTitle.textContent = '曲を登録';
+    songForm.reset();
+    categoryInput.value = (activeTab !== '全て' && CATEGORIES.includes(activeTab)) ? activeTab : DEFAULT_CATEGORY;
+    titleField.classList.remove('invalid');
+    urlField.classList.remove('invalid');
+    formOverlay.classList.add('show');
+    setTimeout(()=> titleInput.focus(), 50);
+  }
+
+  function openEditForm(id){
+    const s = songs.find(x=>x.id===id);
+    if(!s) return;
+    editingId = id;
+    formTitle.textContent = '曲を編集';
+    titleInput.value = s.title || '';
+    furiganaInput.value = s.furigana || '';
+    categoryInput.value = s.category || DEFAULT_CATEGORY;
+    lyricsInput.value = s.lyrics || '';
+    fingeringInput.value = s.fingering || '';
+    fingeringHarmonyInput.value = s.fingeringHarmony || '';
+    urlInput.value = s.sheetUrl || '';
+    titleField.classList.remove('invalid');
+    urlField.classList.remove('invalid');
+    formOverlay.classList.add('show');
+    setTimeout(()=> titleInput.focus(), 50);
+  }
+
+  function closeForm(){
+    formOverlay.classList.remove('show');
+    editingId = null;
+  }
+
+  document.getElementById('openAddBtn').addEventListener('click', openAddForm);
+  document.getElementById('cancelFormBtn').addEventListener('click', closeForm);
+  formOverlay.addEventListener('click', (e)=>{ if(e.target === formOverlay) closeForm(); });
+
+  function isValidUrl(v){
+    if(!v) return true;
+    try{ new URL(v); return true; }catch(e){ return false; }
+  }
+
+  songForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const title = titleInput.value.trim();
+    const url = urlInput.value.trim();
+    let valid = true;
+
+    if(!title){
+      titleField.classList.add('invalid');
+      valid = false;
+    } else {
+      titleField.classList.remove('invalid');
+    }
+
+    if(!isValidUrl(url)){
+      urlField.classList.add('invalid');
+      valid = false;
+    } else {
+      urlField.classList.remove('invalid');
+    }
+
+    if(!valid) return;
+
+    const data = {
+      title,
+      furigana: furiganaInput.value.trim(),
+      category: categoryInput.value || DEFAULT_CATEGORY,
+      lyrics: lyricsInput.value.trim(),
+      fingering: fingeringInput.value.trim(),
+      fingeringHarmony: fingeringHarmonyInput.value.trim(),
+      sheetUrl: url
+    };
+
+    if(editingId){
+      const idx = songs.findIndex(x=>x.id===editingId);
+      if(idx !== -1) songs[idx] = { ...songs[idx], ...data };
+      toast('更新しました');
+    } else {
+      const id = genId();
+      songs.push({ id, ...data, createdAt: Date.now() });
+      openId = id;
+      toast('登録しました');
+    }
+
+    closeForm();
+    render();
+    await persist();
+  });
+
+  /* ---------- Delete modal ---------- */
+  const deleteOverlay = document.getElementById('deleteOverlay');
+  const deleteTargetName = document.getElementById('deleteTargetName');
+
+  function openDeleteConfirm(id){
+    const s = songs.find(x=>x.id===id);
+    if(!s) return;
+    deleteTargetId = id;
+    deleteTargetName.textContent = s.title;
+    deleteOverlay.classList.add('show');
+  }
+  function closeDeleteConfirm(){
+    deleteOverlay.classList.remove('show');
+    deleteTargetId = null;
+  }
+  document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteConfirm);
+  deleteOverlay.addEventListener('click', (e)=>{ if(e.target === deleteOverlay) closeDeleteConfirm(); });
+  document.getElementById('confirmDeleteBtn').addEventListener('click', async ()=>{
+    if(!deleteTargetId) return;
+    songs = songs.filter(s=>s.id !== deleteTargetId);
+    if(openId === deleteTargetId) openId = null;
+    closeDeleteConfirm();
+    render();
+    toast('削除しました');
+    await persist();
+  });
+
+  /* ---------- 共有・書き出し ---------- */
+  const shareOverlay = document.getElementById('shareOverlay');
+  const importFileInput = document.getElementById('importFileInput');
+  const importConfirmOverlay = document.getElementById('importConfirmOverlay');
+  const importConfirmBody = document.getElementById('importConfirmBody');
+  let pendingImportSongs = null;
+
+  function openShareMenu(){ shareOverlay.classList.add('show'); }
+  function closeShareMenu(){ shareOverlay.classList.remove('show'); }
+  document.getElementById('shareMenuBtn').addEventListener('click', openShareMenu);
+  document.getElementById('closeShareBtn').addEventListener('click', closeShareMenu);
+  shareOverlay.addEventListener('click', (e)=>{ if(e.target === shareOverlay) closeShareMenu(); });
+
+  function todayStamp(){
+    const d = new Date();
+    const p = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`;
+  }
+
+  function exportJSON(){
+    if(songs.length === 0){ toast('登録された曲がありません'); return; }
+    const blob = new Blob([JSON.stringify(songs, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `運指ノート_${todayStamp()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=> URL.revokeObjectURL(url), 1000);
+    toast('ファイルを書き出しました');
+    closeShareMenu();
+  }
+  document.getElementById('exportFileBtn').addEventListener('click', exportJSON);
+
+  document.getElementById('importFileBtn').addEventListener('click', ()=>{
+    importFileInput.value = '';
+    importFileInput.click();
+  });
+
+  importFileInput.addEventListener('change', ()=>{
+    const file = importFileInput.files && importFileInput.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(reader.result);
+        const arr = Array.isArray(data) ? data : (Array.isArray(data.songs) ? data.songs : null);
+        if(!arr) throw new Error('invalid');
+        const cleaned = arr.filter(s => s && typeof s === 'object' && s.title).map(s => ({
+          id: genId(),
+          title: String(s.title).slice(0,80),
+          furigana: s.furigana ? String(s.furigana).slice(0,120) : '',
+          category: (s.category && CATEGORIES.includes(s.category)) ? s.category : DEFAULT_CATEGORY,
+          lyrics: s.lyrics ? String(s.lyrics) : '',
+          fingering: s.fingering ? String(s.fingering) : '',
+          fingeringHarmony: s.fingeringHarmony ? String(s.fingeringHarmony) : '',
+          sheetUrl: s.sheetUrl ? String(s.sheetUrl) : '',
+          createdAt: Date.now()
+        }));
+        if(cleaned.length === 0) throw new Error('empty');
+        pendingImportSongs = cleaned;
+        importConfirmBody.innerHTML = `<span class="confirm-title">${cleaned.length}曲</span>のデータが見つかりました。<br>今のデータに追加しますか？<br>それとも今のデータを置き換えますか？`;
+        closeShareMenu();
+        importConfirmOverlay.classList.add('show');
+      }catch(e){
+        toast('ファイルを読み込めませんでした');
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  function closeImportConfirm(){
+    importConfirmOverlay.classList.remove('show');
+    pendingImportSongs = null;
+  }
+  document.getElementById('cancelImportBtn').addEventListener('click', closeImportConfirm);
+  importConfirmOverlay.addEventListener('click', (e)=>{ if(e.target === importConfirmOverlay) closeImportConfirm(); });
+
+  document.getElementById('confirmImportMergeBtn').addEventListener('click', async ()=>{
+    if(!pendingImportSongs) return;
+    songs = songs.concat(pendingImportSongs);
+    const count = pendingImportSongs.length;
+    closeImportConfirm();
+    render();
+    toast(`${count}曲を追加しました`);
+    await persist();
+  });
+
+  document.getElementById('confirmImportReplaceBtn').addEventListener('click', async ()=>{
+    if(!pendingImportSongs) return;
+    songs = pendingImportSongs;
+    openId = null;
+    closeImportConfirm();
+    render();
+    toast('データを置き換えました');
+    await persist();
+  });
+
+  async function copyShareUrl(){
+    if(songs.length === 0){ toast('登録された曲がありません'); return; }
+    const encoded = toBase64Unicode(JSON.stringify(songs));
+    const base = location.origin + location.pathname;
+    const url = `${base}#share=${encoded}`;
+    const isLocalFile = location.protocol === 'file:';
+    try{
+      await navigator.clipboard.writeText(url);
+      toast(isLocalFile ? 'コピーしました（このファイルをネット上に公開しないと他の人は開けません）' : 'URLをコピーしました');
+    }catch(e){
+      window.prompt('このURLをコピーしてください:', url);
+    }
+    closeShareMenu();
+  }
+  document.getElementById('copyUrlBtn').addEventListener('click', copyShareUrl);
+
+  function checkShareHash(){
+    const hash = location.hash || '';
+    const m = hash.match(/#share=(.+)$/);
+    if(!m) return;
+    try{
+      const data = JSON.parse(fromBase64Unicode(decodeURIComponent(m[1])));
+      const arr = Array.isArray(data) ? data : null;
+      if(!arr) return;
+      const cleaned = arr.filter(s => s && typeof s === 'object' && s.title).map(s => ({
+        id: genId(),
+        title: String(s.title).slice(0,80),
+        furigana: s.furigana ? String(s.furigana).slice(0,120) : '',
+        category: (s.category && CATEGORIES.includes(s.category)) ? s.category : DEFAULT_CATEGORY,
+        lyrics: s.lyrics ? String(s.lyrics) : '',
+        fingering: s.fingering ? String(s.fingering) : '',
+        fingeringHarmony: s.fingeringHarmony ? String(s.fingeringHarmony) : '',
+        sheetUrl: s.sheetUrl ? String(s.sheetUrl) : '',
+        createdAt: Date.now()
+      }));
+      if(cleaned.length === 0) return;
+      pendingImportSongs = cleaned;
+      importConfirmBody.innerHTML = `共有された<span class="confirm-title">${cleaned.length}曲</span>のデータが見つかりました。<br>今のデータに追加しますか？<br>それとも今のデータを置き換えますか？`;
+      importConfirmOverlay.classList.add('show');
+    }catch(e){
+      /* 無効なリンクは無視 */
+    }finally{
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  }
+
+  /* ---------- Init ---------- */
+  function startApp(){
+    document.getElementById('passGate').classList.add('hide');
+    document.getElementById('appRoot').style.display = '';
+    loadSongs().then(checkShareHash);
+  }
+
+  const PASS_HASH = '0b19c84f943010d90bb29293aab9cb02b8e63ba193584fb9fe755f8046e227c7';
+  const GATE_KEY = 'passGateUnlocked';
+
+  async function sha256Hex(str){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  const gateForm = document.getElementById('gateForm');
+  const gatePassInput = document.getElementById('gatePassInput');
+  const gateErr = document.getElementById('gateErr');
+  const gateBox = document.getElementById('gateBox');
+
+  gateForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const val = gatePassInput.value;
+    const hash = await sha256Hex(val);
+    if(hash === PASS_HASH){
+      try{ localStorage.setItem(GATE_KEY, '1'); }catch(e){}
+      startApp();
+    } else {
+      gateErr.textContent = '合言葉が違います';
+      gateBox.classList.remove('shake');
+      void gateBox.offsetWidth;
+      gateBox.classList.add('shake');
+      gatePassInput.value = '';
+      gatePassInput.focus();
+    }
+  });
+
+  let alreadyUnlocked = false;
+  try{ alreadyUnlocked = localStorage.getItem(GATE_KEY) === '1'; }catch(e){}
+  if(alreadyUnlocked){
+    startApp();
+  } else {
+    setTimeout(()=> gatePassInput.focus(), 100);
+  }
+})();
+</script>
+</body>
+</html>
