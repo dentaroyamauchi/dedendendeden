@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow, noarchive">
 <title>運指ノート</title>
 <style>
   :root{
@@ -124,36 +123,12 @@
   .btn-add:hover{ background:var(--brass-deep); }
   .btn-add svg{ width:15px; height:15px; stroke:currentColor; }
 
-  .btn-icon{
-    display:flex; align-items:center; justify-content:center;
-    flex:none;
-    width:42px; height:42px;
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:8px;
-    cursor:pointer;
+  .io-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
   }
-  .btn-icon:hover{ background:var(--brass-light); border-color:var(--brass); }
-  .btn-icon svg{ width:18px; height:18px; stroke:var(--ink-soft); }
-
-  /* ---------- Share modal ---------- */
-  .share-actions{ display:flex; flex-direction:column; gap:8px; margin:14px 0 4px; }
-  .share-opt{
-    display:flex; align-items:center; gap:12px;
-    width:100%;
-    text-align:left;
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:12px 14px;
-    cursor:pointer;
-    font-family:inherit;
-  }
-  .share-opt:hover{ background:var(--brass-light); border-color:var(--brass); }
-  .share-opt svg{ width:19px; height:19px; stroke:var(--brass-deep); flex:none; }
-  .share-opt-text{ display:flex; flex-direction:column; gap:2px; }
-  .share-opt-text strong{ font-size:.88rem; color:var(--ink); }
-  .share-opt-text small{ font-size:.74rem; color:var(--ink-faint); line-height:1.4; }
+  .io-row .icon-btn{ font-size:.78rem; padding:7px 12px; }
 
   .count-line{
     font-size:.78rem;
@@ -468,88 +443,11 @@
   @media (prefers-reduced-motion: reduce){
     *{ transition:none !important; }
   }
-
-  /* ---------- Password gate ---------- */
-  #passGate{
-    position:fixed; inset:0;
-    background:var(--paper);
-    z-index:200;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-  }
-  #passGate.hide{ display:none; }
-  .gate-box{
-    width:100%;
-    max-width:340px;
-    text-align:center;
-  }
-  .gate-box .note{ font-size:1.8rem; color:var(--brass-deep); margin-bottom:6px; }
-  .gate-box h1{
-    font-family:inherit;
-    font-size:1.15rem;
-    margin:0 0 4px;
-  }
-  .gate-box p{
-    font-size:.8rem;
-    color:var(--ink-faint);
-    margin:0 0 18px;
-  }
-  .gate-box input{
-    width:100%;
-    padding:12px 14px;
-    border:1px solid var(--line);
-    border-radius:8px;
-    font-size:.95rem;
-    text-align:center;
-    letter-spacing:.05em;
-    margin-bottom:10px;
-  }
-  .gate-box button{
-    width:100%;
-    border:none;
-    border-radius:8px;
-    padding:12px;
-    background:var(--ink);
-    color:var(--paper);
-    font-size:.9rem;
-    font-weight:600;
-    font-family:inherit;
-    cursor:pointer;
-  }
-  .gate-box button:hover{ background:var(--brass-deep); }
-  .gate-err{
-    font-size:.78rem;
-    color:var(--wine);
-    margin-top:10px;
-    min-height:1em;
-  }
-  @keyframes gateShake{
-    10%,90%{ transform:translateX(-1px); }
-    20%,80%{ transform:translateX(2px); }
-    30%,50%,70%{ transform:translateX(-4px); }
-    40%,60%{ transform:translateX(4px); }
-  }
-  .gate-box.shake{ animation:gateShake .4s; }
 </style>
 </head>
 <body>
 
-<div id="passGate">
-  <div class="gate-box" id="gateBox">
-    <div class="note">♪</div>
-    <h1>運指ノート</h1>
-    <p>合言葉を入力してください</p>
-    <form id="gateForm" autocomplete="off">
-      <input type="password" id="gatePassInput" placeholder="合言葉" autocomplete="off">
-      <button type="submit">開く</button>
-      <p class="gate-err" id="gateErr"></p>
-    </form>
-  </div>
-</div>
-
-<div class="wrap" id="appRoot" style="display:none;">
+<div class="wrap" id="appRoot">
   <header class="app-head">
     <div class="brand">
       <span class="note">♪</span>
@@ -568,9 +466,18 @@
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       新規登録
     </button>
-    <button class="btn-icon" id="shareMenuBtn" title="共有・書き出し" aria-label="共有・書き出し">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+  </div>
+
+  <div class="io-row">
+    <button type="button" class="icon-btn" id="exportBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      書き出し
     </button>
+    <button type="button" class="icon-btn" id="importBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      読み込み
+    </button>
+    <input type="file" id="importFile" accept="application/json" hidden>
   </div>
 
   <div class="tabs" id="tabsBar"></div>
@@ -639,49 +546,6 @@
   </div>
 </div>
 
-<!-- 共有・書き出しモーダル -->
-<div class="overlay" id="shareOverlay">
-  <div class="modal">
-    <h2>共有・書き出し</h2>
-    <p class="modal-sub">登録した曲データを、ほかの端末や人と共有できます</p>
-
-    <div class="share-actions">
-      <button type="button" class="share-opt" id="exportFileBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span class="share-opt-text"><strong>ファイルを書き出す</strong><small>JSONファイルとして保存。LINEやメール、AirDropなどで送れます</small></span>
-      </button>
-      <button type="button" class="share-opt" id="importFileBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <span class="share-opt-text"><strong>ファイルを読み込む</strong><small>受け取ったJSONファイルからこの端末に取り込みます</small></span>
-      </button>
-      <button type="button" class="share-opt" id="copyUrlBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-        <span class="share-opt-text"><strong>共有用URLをコピー</strong><small>このアプリをネット上に公開している場合のみ、開くだけで取り込めるリンクを作れます</small></span>
-      </button>
-    </div>
-    <input type="file" id="importFileInput" accept="application/json,.json" style="display:none">
-
-    <div class="modal-actions">
-      <button type="button" class="btn-ghost" id="closeShareBtn">閉じる</button>
-    </div>
-  </div>
-</div>
-
-<!-- 読み込み確認モーダル -->
-<div class="overlay" id="importConfirmOverlay">
-  <div class="modal">
-    <h2>読み込みの確認</h2>
-    <p class="confirm-body" id="importConfirmBody"></p>
-    <div class="modal-actions">
-      <button type="button" class="btn-ghost" id="cancelImportBtn">キャンセル</button>
-      <button type="button" class="btn-primary" id="confirmImportMergeBtn">今のデータに追加する</button>
-    </div>
-    <div class="modal-actions" style="margin-top:2px;">
-      <button type="button" class="btn-danger-solid" id="confirmImportReplaceBtn">今のデータを置き換える</button>
-    </div>
-  </div>
-</div>
-
 <script>
 (function(){
   const STORAGE_KEY = 'songs-data';
@@ -702,17 +566,6 @@
   const escapeHtml = (s='') => s.replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
-
-  function genId(){
-    return crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2);
-  }
-
-  function toBase64Unicode(str){
-    return btoa(unescape(encodeURIComponent(str)));
-  }
-  function fromBase64Unicode(str){
-    return decodeURIComponent(escape(atob(str)));
-  }
 
   function toast(msg){
     const t = document.getElementById('toast');
@@ -932,6 +785,67 @@
 
   searchInput.addEventListener('input', ()=>{ render(); });
 
+  /* ---------- Export / Import ---------- */
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const importFile = document.getElementById('importFile');
+
+  exportBtn.addEventListener('click', ()=>{
+    if(songs.length === 0){
+      toast('書き出せる曲がありません');
+      return;
+    }
+    const blob = new Blob([JSON.stringify(songs, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = `運指ノート_${today}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('書き出しました');
+  });
+
+  importBtn.addEventListener('click', ()=> importFile.click());
+
+  importFile.addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev)=>{
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(!Array.isArray(data)) throw new Error('invalid format');
+        const validItems = data.filter(item => item && typeof item.title === 'string');
+        if(validItems.length === 0) throw new Error('empty');
+
+        const existingIds = new Set(songs.map(s=>s.id));
+        let added = 0, updated = 0;
+        validItems.forEach(item=>{
+          if(!item.category) item.category = DEFAULT_CATEGORY;
+          if(item.id && existingIds.has(item.id)){
+            const idx = songs.findIndex(s=>s.id===item.id);
+            songs[idx] = { ...songs[idx], ...item };
+            updated++;
+          } else {
+            if(!item.id) item.id = (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2));
+            songs.push(item);
+            added++;
+          }
+        });
+        render();
+        await persist();
+        toast(`読み込み完了(追加${added}件・更新${updated}件)`);
+      }catch(err){
+        toast('ファイルを読み込めませんでした。形式をご確認ください');
+      }
+      importFile.value = '';
+    };
+    reader.readAsText(file);
+  });
+
   /* ---------- Form modal ---------- */
   const formOverlay = document.getElementById('formOverlay');
   const songForm = document.getElementById('songForm');
@@ -1028,7 +942,7 @@
       if(idx !== -1) songs[idx] = { ...songs[idx], ...data };
       toast('更新しました');
     } else {
-      const id = genId();
+      const id = (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2));
       songs.push({ id, ...data, createdAt: Date.now() });
       openId = id;
       toast('登録しました');
@@ -1066,195 +980,8 @@
     await persist();
   });
 
-  /* ---------- 共有・書き出し ---------- */
-  const shareOverlay = document.getElementById('shareOverlay');
-  const importFileInput = document.getElementById('importFileInput');
-  const importConfirmOverlay = document.getElementById('importConfirmOverlay');
-  const importConfirmBody = document.getElementById('importConfirmBody');
-  let pendingImportSongs = null;
-
-  function openShareMenu(){ shareOverlay.classList.add('show'); }
-  function closeShareMenu(){ shareOverlay.classList.remove('show'); }
-  document.getElementById('shareMenuBtn').addEventListener('click', openShareMenu);
-  document.getElementById('closeShareBtn').addEventListener('click', closeShareMenu);
-  shareOverlay.addEventListener('click', (e)=>{ if(e.target === shareOverlay) closeShareMenu(); });
-
-  function todayStamp(){
-    const d = new Date();
-    const p = n => String(n).padStart(2,'0');
-    return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`;
-  }
-
-  function exportJSON(){
-    if(songs.length === 0){ toast('登録された曲がありません'); return; }
-    const blob = new Blob([JSON.stringify(songs, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `運指ノート_${todayStamp()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=> URL.revokeObjectURL(url), 1000);
-    toast('ファイルを書き出しました');
-    closeShareMenu();
-  }
-  document.getElementById('exportFileBtn').addEventListener('click', exportJSON);
-
-  document.getElementById('importFileBtn').addEventListener('click', ()=>{
-    importFileInput.value = '';
-    importFileInput.click();
-  });
-
-  importFileInput.addEventListener('change', ()=>{
-    const file = importFileInput.files && importFileInput.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try{
-        const data = JSON.parse(reader.result);
-        const arr = Array.isArray(data) ? data : (Array.isArray(data.songs) ? data.songs : null);
-        if(!arr) throw new Error('invalid');
-        const cleaned = arr.filter(s => s && typeof s === 'object' && s.title).map(s => ({
-          id: genId(),
-          title: String(s.title).slice(0,80),
-          furigana: s.furigana ? String(s.furigana).slice(0,120) : '',
-          category: (s.category && CATEGORIES.includes(s.category)) ? s.category : DEFAULT_CATEGORY,
-          lyrics: s.lyrics ? String(s.lyrics) : '',
-          fingering: s.fingering ? String(s.fingering) : '',
-          fingeringHarmony: s.fingeringHarmony ? String(s.fingeringHarmony) : '',
-          sheetUrl: s.sheetUrl ? String(s.sheetUrl) : '',
-          createdAt: Date.now()
-        }));
-        if(cleaned.length === 0) throw new Error('empty');
-        pendingImportSongs = cleaned;
-        importConfirmBody.innerHTML = `<span class="confirm-title">${cleaned.length}曲</span>のデータが見つかりました。<br>今のデータに追加しますか？<br>それとも今のデータを置き換えますか？`;
-        closeShareMenu();
-        importConfirmOverlay.classList.add('show');
-      }catch(e){
-        toast('ファイルを読み込めませんでした');
-      }
-    };
-    reader.readAsText(file);
-  });
-
-  function closeImportConfirm(){
-    importConfirmOverlay.classList.remove('show');
-    pendingImportSongs = null;
-  }
-  document.getElementById('cancelImportBtn').addEventListener('click', closeImportConfirm);
-  importConfirmOverlay.addEventListener('click', (e)=>{ if(e.target === importConfirmOverlay) closeImportConfirm(); });
-
-  document.getElementById('confirmImportMergeBtn').addEventListener('click', async ()=>{
-    if(!pendingImportSongs) return;
-    songs = songs.concat(pendingImportSongs);
-    const count = pendingImportSongs.length;
-    closeImportConfirm();
-    render();
-    toast(`${count}曲を追加しました`);
-    await persist();
-  });
-
-  document.getElementById('confirmImportReplaceBtn').addEventListener('click', async ()=>{
-    if(!pendingImportSongs) return;
-    songs = pendingImportSongs;
-    openId = null;
-    closeImportConfirm();
-    render();
-    toast('データを置き換えました');
-    await persist();
-  });
-
-  async function copyShareUrl(){
-    if(songs.length === 0){ toast('登録された曲がありません'); return; }
-    const encoded = toBase64Unicode(JSON.stringify(songs));
-    const base = location.origin + location.pathname;
-    const url = `${base}#share=${encoded}`;
-    const isLocalFile = location.protocol === 'file:';
-    try{
-      await navigator.clipboard.writeText(url);
-      toast(isLocalFile ? 'コピーしました（このファイルをネット上に公開しないと他の人は開けません）' : 'URLをコピーしました');
-    }catch(e){
-      window.prompt('このURLをコピーしてください:', url);
-    }
-    closeShareMenu();
-  }
-  document.getElementById('copyUrlBtn').addEventListener('click', copyShareUrl);
-
-  function checkShareHash(){
-    const hash = location.hash || '';
-    const m = hash.match(/#share=(.+)$/);
-    if(!m) return;
-    try{
-      const data = JSON.parse(fromBase64Unicode(decodeURIComponent(m[1])));
-      const arr = Array.isArray(data) ? data : null;
-      if(!arr) return;
-      const cleaned = arr.filter(s => s && typeof s === 'object' && s.title).map(s => ({
-        id: genId(),
-        title: String(s.title).slice(0,80),
-        furigana: s.furigana ? String(s.furigana).slice(0,120) : '',
-        category: (s.category && CATEGORIES.includes(s.category)) ? s.category : DEFAULT_CATEGORY,
-        lyrics: s.lyrics ? String(s.lyrics) : '',
-        fingering: s.fingering ? String(s.fingering) : '',
-        fingeringHarmony: s.fingeringHarmony ? String(s.fingeringHarmony) : '',
-        sheetUrl: s.sheetUrl ? String(s.sheetUrl) : '',
-        createdAt: Date.now()
-      }));
-      if(cleaned.length === 0) return;
-      pendingImportSongs = cleaned;
-      importConfirmBody.innerHTML = `共有された<span class="confirm-title">${cleaned.length}曲</span>のデータが見つかりました。<br>今のデータに追加しますか？<br>それとも今のデータを置き換えますか？`;
-      importConfirmOverlay.classList.add('show');
-    }catch(e){
-      /* 無効なリンクは無視 */
-    }finally{
-      history.replaceState(null, '', location.pathname + location.search);
-    }
-  }
-
   /* ---------- Init ---------- */
-  function startApp(){
-    document.getElementById('passGate').classList.add('hide');
-    document.getElementById('appRoot').style.display = '';
-    loadSongs().then(checkShareHash);
-  }
-
-  const PASS_HASH = '0b19c84f943010d90bb29293aab9cb02b8e63ba193584fb9fe755f8046e227c7';
-  const GATE_KEY = 'passGateUnlocked';
-
-  async function sha256Hex(str){
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-  }
-
-  const gateForm = document.getElementById('gateForm');
-  const gatePassInput = document.getElementById('gatePassInput');
-  const gateErr = document.getElementById('gateErr');
-  const gateBox = document.getElementById('gateBox');
-
-  gateForm.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const val = gatePassInput.value;
-    const hash = await sha256Hex(val);
-    if(hash === PASS_HASH){
-      try{ localStorage.setItem(GATE_KEY, '1'); }catch(e){}
-      startApp();
-    } else {
-      gateErr.textContent = '合言葉が違います';
-      gateBox.classList.remove('shake');
-      void gateBox.offsetWidth;
-      gateBox.classList.add('shake');
-      gatePassInput.value = '';
-      gatePassInput.focus();
-    }
-  });
-
-  let alreadyUnlocked = false;
-  try{ alreadyUnlocked = localStorage.getItem(GATE_KEY) === '1'; }catch(e){}
-  if(alreadyUnlocked){
-    startApp();
-  } else {
-    setTimeout(()=> gatePassInput.focus(), 100);
-  }
+  loadSongs();
 })();
 </script>
 </body>
