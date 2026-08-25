@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>運指ノート</title>
+<title>応援歌運指表</title>
 <style>
   :root{
     --paper:#FFFFFF;
@@ -47,12 +47,8 @@
   }
   .brand{
     display:flex;
-    align-items:baseline;
+    align-items:center;
     gap:8px;
-  }
-  .brand .note{
-    font-size:1.3rem;
-    color:var(--brass-deep);
   }
   .brand h1{
     font-family:inherit;
@@ -172,6 +168,25 @@
     padding-bottom:2px;
   }
   .tabs::-webkit-scrollbar{ display:none; }
+
+  .kana-tabs{
+    scrollbar-width:thin;
+    scrollbar-color: var(--brass) transparent;
+    padding-bottom:8px;
+    margin-bottom:10px;
+  }
+  .kana-tabs::-webkit-scrollbar{
+    display:block;
+    height:5px;
+  }
+  .kana-tabs::-webkit-scrollbar-track{
+    background:var(--brass-light);
+    border-radius:3px;
+  }
+  .kana-tabs::-webkit-scrollbar-thumb{
+    background:var(--brass);
+    border-radius:3px;
+  }
   .tab-btn{
     flex:none;
     display:flex;
@@ -474,10 +489,8 @@
 <div class="wrap" id="appRoot">
   <header class="app-head">
     <div class="brand">
-      <span class="note">♪</span>
-      <h1>運指ノート</h1>
+      <h1>応援歌運指表</h1>
     </div>
-    <p class="brand-sub">曲名・歌詞・指番号・楽譜リンクをまとめて管理</p>
     <div class="staff"></div>
   </header>
 
@@ -508,7 +521,7 @@
   </div>
 
   <div class="tabs" id="tabsBar"></div>
-  <div class="tabs" id="kanaTabsBar"></div>
+  <div class="tabs kana-tabs" id="kanaTabsBar"></div>
 
   <p class="count-line" id="countLine"></p>
 
