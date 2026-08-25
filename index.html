@@ -94,7 +94,7 @@
   }
   .search-box input{
     width:100%;
-    padding:11px 14px 11px 38px;
+    padding:11px 34px 11px 38px;
     border:1px solid var(--line);
     border-radius:8px;
     background:var(--paper-card);
@@ -107,6 +107,30 @@
     left:12px; top:50%; transform:translateY(-50%);
     width:16px; height:16px;
     stroke:var(--ink-faint);
+  }
+  .search-clear{
+    display:none;
+    position:absolute;
+    right:8px; top:50%; transform:translateY(-50%);
+    width:22px; height:22px;
+    border:none;
+    background:transparent;
+    color:var(--ink-faint);
+    cursor:pointer;
+    border-radius:50%;
+    padding:0;
+    margin:0;
+    line-height:0;
+  }
+  .search-clear:hover{ background:var(--brass-light); color:var(--ink); }
+  .search-clear.show{ display:block; }
+  .search-clear svg{
+    display:block;
+    position:absolute;
+    left:50%; top:50%;
+    transform:translate(-50%, -50%);
+    width:14px; height:14px;
+    stroke:currentColor;
   }
   .btn-add{
     display:flex; align-items:center; gap:6px;
@@ -461,6 +485,9 @@
     <div class="search-box">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input id="searchInput" type="text" placeholder="曲名・ふりがなで検索" autocomplete="off">
+      <button type="button" class="search-clear" id="searchClearBtn" aria-label="検索文字をクリア">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <button class="btn-add" id="openAddBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -481,6 +508,7 @@
   </div>
 
   <div class="tabs" id="tabsBar"></div>
+  <div class="tabs" id="kanaTabsBar"></div>
 
   <p class="count-line" id="countLine"></p>
 
@@ -557,11 +585,43 @@
   let deleteTargetId = null;
   let loaded = false;
   let activeTab = '全て';
+  let activeKana = '全て';
+
+  const KANA_ROWS = [
+    { label:'あ', chars:'あいうえおぁぃぅぇぉ' },
+    { label:'か', chars:'かきくけこがぎぐげご' },
+    { label:'さ', chars:'さしすせそざじずぜぞ' },
+    { label:'た', chars:'たちつてとだぢづでどっ' },
+    { label:'な', chars:'なにぬねの' },
+    { label:'は', chars:'はひふへほばびぶべぼぱぴぷぺぽ' },
+    { label:'ま', chars:'まみむめも' },
+    { label:'や', chars:'やゆよゃゅょ' },
+    { label:'ら', chars:'らりるれろ' },
+    { label:'わ', chars:'わをんゎ' }
+  ];
+
+  function toHiragana(ch){
+    const code = ch.charCodeAt(0);
+    if(code >= 0x30A1 && code <= 0x30F6){
+      return String.fromCharCode(code - 0x60);
+    }
+    return ch;
+  }
+
+  function getKanaRowLabel(s){
+    const src = (s.furigana && s.furigana.trim()) ? s.furigana.trim() : (s.title || '').trim();
+    if(!src) return null;
+    const first = toHiragana(src[0]);
+    const row = KANA_ROWS.find(r => r.chars.includes(first));
+    return row ? row.label : null;
+  }
 
   const listEl = document.getElementById('list');
   const countLine = document.getElementById('countLine');
   const searchInput = document.getElementById('searchInput');
+  const searchClearBtn = document.getElementById('searchClearBtn');
   const tabsBar = document.getElementById('tabsBar');
+  const kanaTabsBar = document.getElementById('kanaTabsBar');
 
   const escapeHtml = (s='') => s.replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -644,11 +704,37 @@
     });
   }
 
+  function renderKanaTabs(){
+    const rows = ['全て', ...KANA_ROWS.map(r => r.label), 'その他'];
+    kanaTabsBar.innerHTML = rows.map(t => {
+      let count;
+      if(t === '全て') count = songs.length;
+      else if(t === 'その他') count = songs.filter(s => getKanaRowLabel(s) === null).length;
+      else count = songs.filter(s => getKanaRowLabel(s) === t).length;
+      return `<button type="button" class="tab-btn ${t===activeKana?'active':''}" data-kana="${escapeHtml(t)}">
+        ${escapeHtml(t)} <span class="tab-count">${count}</span>
+      </button>`;
+    }).join('');
+    kanaTabsBar.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', ()=>{
+        activeKana = btn.dataset.kana;
+        openId = null;
+        render();
+      });
+    });
+  }
+
   function sortedFiltered(){
     const q = searchInput.value.trim().toLowerCase();
     let arr = [...songs];
     if(activeTab !== '全て'){
       arr = arr.filter(s => s.category === activeTab);
+    }
+    if(activeKana !== '全て'){
+      arr = arr.filter(s => {
+        const label = getKanaRowLabel(s);
+        return activeKana === 'その他' ? label === null : label === activeKana;
+      });
     }
     if(q){
       arr = arr.filter(s =>
@@ -666,6 +752,7 @@
 
   function render(){
     renderTabs();
+    renderKanaTabs();
     if(!loaded){
       listEl.innerHTML = '<div class="loading">読み込み中…</div>';
       countLine.textContent = '';
@@ -693,7 +780,7 @@
       listEl.innerHTML = `
         <div class="empty">
           <div class="note">♪</div>
-          <p>${q ? `「${escapeHtml(q)}」に一致する曲が見つかりません。` : `「${escapeHtml(activeTab)}」に登録された曲がありません。`}</p>
+          <p>${q ? `「${escapeHtml(q)}」に一致する曲が見つかりません。` : `条件（${escapeHtml(activeTab)} / ${escapeHtml(activeKana)}）に一致する曲がありません。`}</p>
         </div>`;
       countLine.textContent = `全 ${songs.length} 曲`;
       return;
@@ -715,7 +802,6 @@
 
   function cardHtml(s){
     const isOpen = s.id === openId;
-    const fingeringPreview = s.fingering ? s.fingering.split('\n')[0] : '';
     return `
     <div class="card ${isOpen?'open':''}" id="card-${s.id}">
       <div class="card-head" id="head-${s.id}" role="button" tabindex="0" aria-expanded="${isOpen}">
@@ -724,7 +810,6 @@
           <p class="card-title">${escapeHtml(s.title)}</p>
           <div class="card-meta">
             <span class="cat-chip">${escapeHtml(s.category || DEFAULT_CATEGORY)}</span>
-            ${fingeringPreview ? `<span class="finger-chip">${escapeHtml(fingeringPreview)}</span>` : ''}
             ${s.sheetUrl ? `<span class="link-dot" title="楽譜リンクあり"></span>` : ''}
           </div>
         </div>
@@ -787,7 +872,20 @@
     render();
   }
 
-  searchInput.addEventListener('input', ()=>{ render(); });
+  function updateSearchClearBtn(){
+    searchClearBtn.classList.toggle('show', searchInput.value.length > 0);
+  }
+
+  searchInput.addEventListener('input', ()=>{ updateSearchClearBtn(); render(); });
+
+  searchClearBtn.addEventListener('click', ()=>{
+    searchInput.value = '';
+    updateSearchClearBtn();
+    searchInput.focus();
+    render();
+  });
+
+  updateSearchClearBtn();
 
   /* ---------- Export / Import ---------- */
   const exportBtn = document.getElementById('exportBtn');
