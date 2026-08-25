@@ -656,7 +656,11 @@
         (s.furigana && s.furigana.toLowerCase().includes(q))
       );
     }
-    arr.sort((a,b)=> a.title.localeCompare(b.title, 'ja'));
+    arr.sort((a,b)=>{
+      const keyA = (a.furigana && a.furigana.trim()) ? a.furigana.trim() : a.title;
+      const keyB = (b.furigana && b.furigana.trim()) ? b.furigana.trim() : b.title;
+      return keyA.localeCompare(keyB, 'ja');
+    });
     return arr;
   }
 
