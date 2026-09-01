@@ -567,6 +567,11 @@
         <input id="urlInput" type="url" placeholder="https://...">
         <p class="err">URLの形式で入力してください</p>
       </div>
+      <div class="field" id="videoUrlField">
+        <label for="videoUrlInput">動画へのリンク<span class="opt">（任意）</span></label>
+        <input id="videoUrlInput" type="url" placeholder="https://...">
+        <p class="err">URLの形式で入力してください</p>
+      </div>
       <div class="modal-actions">
         <button type="button" class="btn-ghost" id="cancelFormBtn">キャンセル</button>
         <button type="submit" class="btn-primary">保存する</button>
@@ -867,6 +872,18 @@
                </a>`
             : `<p class="muted-note">楽譜リンクは未登録です</p>`}
         </div>
+        <div class="sec">
+          <p class="sec-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            動画
+          </p>
+          ${s.videoUrl
+            ? `<a class="sheet-link" href="${escapeHtml(s.videoUrl)}" target="_blank" rel="noopener noreferrer">
+                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                 動画を見る
+               </a>`
+            : `<p class="muted-note">動画リンクは未登録です</p>`}
+        </div>
         <div class="card-actions">
           <button type="button" class="icon-btn" id="edit-${s.id}">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
@@ -971,8 +988,10 @@
   const fingeringInput = document.getElementById('fingeringInput');
   const fingeringHarmonyInput = document.getElementById('fingeringHarmonyInput');
   const urlInput = document.getElementById('urlInput');
+  const videoUrlInput = document.getElementById('videoUrlInput');
   const titleField = document.getElementById('titleField');
   const urlField = document.getElementById('urlField');
+  const videoUrlField = document.getElementById('videoUrlField');
   const formTitle = document.getElementById('formTitle');
 
   categoryInput.innerHTML = CATEGORIES.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
@@ -984,6 +1003,7 @@
     categoryInput.value = (activeTab !== '全て' && CATEGORIES.includes(activeTab)) ? activeTab : DEFAULT_CATEGORY;
     titleField.classList.remove('invalid');
     urlField.classList.remove('invalid');
+    videoUrlField.classList.remove('invalid');
     formOverlay.classList.add('show');
     setTimeout(()=> titleInput.focus(), 50);
   }
@@ -1000,8 +1020,10 @@
     fingeringInput.value = s.fingering || '';
     fingeringHarmonyInput.value = s.fingeringHarmony || '';
     urlInput.value = s.sheetUrl || '';
+    videoUrlInput.value = s.videoUrl || '';
     titleField.classList.remove('invalid');
     urlField.classList.remove('invalid');
+    videoUrlField.classList.remove('invalid');
     formOverlay.classList.add('show');
     setTimeout(()=> titleInput.focus(), 50);
   }
@@ -1024,6 +1046,7 @@
     e.preventDefault();
     const title = titleInput.value.trim();
     const url = urlInput.value.trim();
+    const videoUrl = videoUrlInput.value.trim();
     let valid = true;
 
     if(!title){
@@ -1040,6 +1063,13 @@
       urlField.classList.remove('invalid');
     }
 
+    if(!isValidUrl(videoUrl)){
+      videoUrlField.classList.add('invalid');
+      valid = false;
+    } else {
+      videoUrlField.classList.remove('invalid');
+    }
+
     if(!valid) return;
 
     const data = {
@@ -1049,7 +1079,8 @@
       lyrics: lyricsInput.value.trim(),
       fingering: fingeringInput.value.trim(),
       fingeringHarmony: fingeringHarmonyInput.value.trim(),
-      sheetUrl: url
+      sheetUrl: url,
+      videoUrl: videoUrl
     };
 
     if(editingId){
